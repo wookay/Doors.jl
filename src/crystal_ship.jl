@@ -21,7 +21,7 @@ end
 const token_runexpr = "Doors::token_runexpr"
 const token_runfile = "Doors::token_runfile"
 const token_end     = "Doors::token_end"
-const PORT::UInt16  = 3000
+const PORT::UInt16  = 3001
 
 function serverRun(f::Function, sock::TCPSocket, dir, args::Vector{String})
     @debug serverRun f sock dir args
