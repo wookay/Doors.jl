@@ -1,0 +1,23 @@
+using Doors
+using .Doors: create_app
+using Test
+
+function test_runfile()
+    app = create_app(; port = any)
+    
+    yield()
+    sleep(0.00000001)
+    
+    dir = normpath(@__DIR__, "../")
+    filepath = "runtests.jl"
+    args = ["dummy"]
+    
+    Doors.runfile(dir, filepath, args, app.server_port)
+    
+    Doors.shutdown(app)
+
+    @test !app.is_running
+end
+
+using Base.CoreLogging: with_logger, ConsoleLogger, Debug
+with_logger(test_runfile, ConsoleLogger(Debug))

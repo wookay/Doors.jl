@@ -1,0 +1,18 @@
+name = "Doors"
+uuid = "562d782d-cdb6-40a5-8f18-d6f69b5e6b90"
+version = "0.1.0"
+authors = ["WooKyoung Noh <wookay.noh@gmail.com>"]
+
+[deps]
+Sockets = "6462fe0b-24de-5631-8697-dd941f90decc"
+IOCapture = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
+
+[compat]
+julia = "1.11"
+IOCapture = "0.2, 1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
