@@ -4,7 +4,7 @@
 |:---------------------------------:|
 |  [![][actions-img]][actions-url]  |
 
-another implement [DaemonMode.jl](https://github.com/dmolina/DaemonMode.jl)
+another implement of [DaemonMode.jl](https://github.com/dmolina/DaemonMode.jl).
 I used some code from DaemonMode.jl.
 
 ```
