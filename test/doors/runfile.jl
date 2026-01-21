@@ -1,9 +1,11 @@
-using Doors
-using .Doors: create_app
 using Test
+using Doors
+
+Doors.runfile
+Doors.runargs
 
 function test_runfile()
-    app = create_app(; port = any)
+    app = Doors.create_app(; port = any)
     
     yield()
     sleep(0.00000001)

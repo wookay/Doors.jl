@@ -24,7 +24,7 @@ const token_end     = "Doors::token_end"
 const PORT::UInt16  = 3001
 
 function serverRun(f::Function, sock::TCPSocket, dir, args::Vector{String})
-    @debug serverRun f sock dir args
+    @debug :serverRun f sock dir args
 
     empty!(ARGS)
     push!(ARGS, args...)
@@ -35,23 +35,24 @@ function serverRun(f::Function, sock::TCPSocket, dir, args::Vector{String})
     end
     print(sock, c.output)
     if c.error
-        write_error_msg(sock, c.value, c.backtrace)
+        write_error(sock, c.value, c.backtrace)
     end
     println(sock, token_end)
 end
 
-function serverReplyError(sock::TCPSocket, e)
-    @debug serverReplyError sock e
+function serverReplyError(sock::TCPSocket, ex)
+    @debug :serverReplyError sock ex
 
     bt = backtrace()
-    write_error_msg(sock, e, bt)
+    write_error(sock, ex, bt)
     println(sock, token_end)
 end
 
-function write_error_msg(io::IO, e, bt::Vector{Union{Ptr{Nothing}, Base.InterpreterIP}})
+function write_error(io::IO, ex, bt::Vector{Union{Ptr{Nothing}, Base.InterpreterIP}})
     io_context = IOContext(io, :color => true)
     printstyled(io_context, "ERROR: ", color = :red)
-    showerror(io, e, bt; backtrace=true)
+    showerror(io_context, ex, bt; backtrace=true)
+    println(io)
 end
 
 function async_process(sock::TCPSocket, into::Module)
@@ -74,12 +75,18 @@ function async_process(sock::TCPSocket, into::Module)
                 Base.include(into, filepath)
             end
         else
-            e = ArgumentError(mode)
-            serverReplyError(sock, e)
+            ex = ArgumentError(mode)
+            serverReplyError(sock, ex)
         end
-    catch e
-        serverReplyError(sock, e)
+    catch ex
+        serverReplyError(sock, ex)
     end
+end
+
+function showerror_with_backtrace(io::IO, ex)
+    bt = backtrace()[1:min(end, 10)]
+    showerror(io, ex, bt; backtrace=true)
+    println(io)
 end
 
 
@@ -113,8 +120,8 @@ function runloop(app::App, port::Union{typeof(any), Integer})
         for task in tasks
             try
                 wait(task)
-            catch e
-                @info :e e
+            catch ex
+                showerror_with_backtrace(stderr, ex)
             end
         end
     end
@@ -129,25 +136,21 @@ end
 
 ### client
 function conn_and_req(f::Function, port::Integer)
-    try
-        sock = Sockets.connect(port)
-        f(sock)
+    sock = Sockets.connect(port)
+    f(sock)
 
-        while true
-            line = readline(sock)
-            if endswith(line, token_end)
-                length_token_end = length(token_end)
-                if length(line) > length_token_end
-                    crumb = line[1:end-length_token_end]
-                    print(stdout, crumb)
-                end
-                break
-            else
-                println(stdout, line)
+    while true
+        line = readline(sock)
+        if endswith(line, token_end)
+            length_token_end = length(token_end)
+            if length(line) > length_token_end
+                crumb = line[1:end-length_token_end]
+                print(stdout, crumb)
             end
+            break
+        else
+            println(stdout, line)
         end
-    catch e
-        println(stderr, e)
     end
 end
 
