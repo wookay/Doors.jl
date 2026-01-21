@@ -13,9 +13,8 @@ alias jc="julia -e 'using Doors; runargs()'  "
 ```
 
 
-** Listen to music - The Doors  - The Crystal Ship (MIDI)
-
-[![The Doors  - The Crystal Ship (MIDI)](http://img.youtube.com/vi/NlB4DARURM0/0.jpg)](http://www.youtube.com/watch?v=NlB4DARURM0)
+### Listen to music - The Doors  - The Crystal Ship (MIDI)
+[![The Doors  - The Crystal Ship (MIDI)](http://img.youtube.com/vi/NlB4DARURM0/1.jpg)](http://www.youtube.com/watch?v=NlB4DARURM0)
 
 [actions-img]: https://github.com/wookay/Doors.jl/workflows/CI/badge.svg
 [actions-url]: https://github.com/wookay/Doors.jl/actions
