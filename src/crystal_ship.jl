@@ -91,7 +91,7 @@ end
 
 
 ### App
-function create_app(; into::Module = Module(), port::Union{typeof(any), Integer} = PORT)::App
+function create_app(; port::Union{typeof(any), Integer} = PORT, into::Module)::App
     app = App(; into)
     runloop_task = @async runloop(app, port)
     app.runloop_task = runloop_task

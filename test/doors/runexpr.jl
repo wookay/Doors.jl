@@ -1,7 +1,7 @@
 using Test
 using Doors # runexpr
 
-app = Doors.create_app(; port = any)
+app = Doors.create_app(; port = any, into = Module())
 
 yield()
 sleep(0.00000001)

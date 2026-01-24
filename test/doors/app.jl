@@ -13,7 +13,7 @@ app = App(; into = @__MODULE__)
 @test app.server_port === nothing
 
 app1 = Doors.create_app(; port = any, into = @__MODULE__)
-app2 = Doors.create_app(; port = any)
+app2 = Doors.create_app(; port = any, into = Module())
 
 @test app1.into != app2.into
 @test app1.server_port === app2.server_port === nothing
