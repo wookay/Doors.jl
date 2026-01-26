@@ -14,8 +14,8 @@ alias jc="julia -e 'using Doors; runargs()'  "
 
 ### Advanced usage
 ```
-alias jd="julia --trace-compile-timing --trace-compile=stderr -e 'using Doors; serve(; into=Main)'  "
-alias jc="julia --trace-compile-timing --trace-compile=stderr -e 'using Doors; runargs()'  "
+alias jd="julia --trace-compile-timing --trace-compile=stderr --compiled-modules=yes -e 'using Doors; serve(; into=Main)'  "
+alias jc="julia --trace-compile-timing --trace-compile=stderr --compiled-modules=yes -e 'using Doors; runargs()'  "
 ```
 
 ### Listen to music - The Doors  - The Crystal Ship (MIDI)
