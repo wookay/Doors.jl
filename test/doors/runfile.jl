@@ -6,9 +6,7 @@ Doors.runargs
 
 function test_runfile()
     app = Doors.create_app(; port = any, into = Module())
-    
-    yield()
-    sleep(0.00000001)
+    wait(app.started_notify)
     
     dir = normpath(@__DIR__, "../")
     filepath = "runtests.jl"

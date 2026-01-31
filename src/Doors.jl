@@ -12,4 +12,6 @@ include("runargs.jl")
 export runexpr
 include("runexpr.jl")
 
+include("precompile.jl")
+
 end # module Doors

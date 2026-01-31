@@ -2,10 +2,8 @@ using Test
 using Doors # runexpr
 
 app = Doors.create_app(; port = any, into = Module())
+wait(app.started_notify)
 
-yield()
-sleep(0.00000001)
-    
 expr_str = """fafo"""
 runexpr(expr_str, app.server_port)
 

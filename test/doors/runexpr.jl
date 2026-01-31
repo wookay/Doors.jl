@@ -5,9 +5,7 @@ Doors.runexpr
 
 function test_runexpr()
     app = Doors.create_app(; port = any, into = Module())
-
-    yield()
-    sleep(0.00000001)
+    wait(app.started_notify)
 
     expr_str = """println(3)"""
     value = runexpr(expr_str, app.server_port)

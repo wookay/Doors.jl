@@ -5,16 +5,16 @@ using IOCapture: IOCapture
 
 mutable struct App
     into::Module
-    close_notify::Condition
+    started_notify::Base.Event
     runloop_task::Union{Nothing,Task}
     is_running::Bool
     server_port::Union{Nothing,Integer}
     function App(; into::Module,
-                   close_notify::Condition = Condition(),
+                   started_notify::Base.Event = Base.Event(),
                    runloop_task::Union{Nothing,Task} = nothing,
                    is_running::Bool = false,
                    server_port::Union{Nothing,Integer} = nothing)
-        new(into, close_notify, runloop_task, is_running, server_port)
+        new(into, started_notify, runloop_task, is_running, server_port)
     end
 end
 
@@ -94,7 +94,9 @@ end
 ### App
 function create_app(; port::Union{typeof(any), Integer} = PORT, into::Module)::App
     app = App(; into)
-    runloop_task = @async runloop(app, port)
+    runloop_task = @async begin
+        runloop(app, port)
+    end
     app.runloop_task = runloop_task
     app
 end
@@ -108,6 +110,7 @@ function runloop(app::App, port::Union{typeof(any), Integer})
     end
     app.is_running = true
     app.server_port = server_port
+    notify(app.started_notify)
     @debug :runloop tcp_server Int(server_port)
     tasks = Task[]
     while isopen(tcp_server) && app.is_running
@@ -127,7 +130,6 @@ function runloop(app::App, port::Union{typeof(any), Integer})
         end
     end
     close(tcp_server)
-    notify(app.close_notify)
 end
 
 function shutdown(app::App)
