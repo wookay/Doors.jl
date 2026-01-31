@@ -23,16 +23,14 @@ const token_runfile = "Doors::token_runfile"
 const token_end     = "Doors::token_end"
 const PORT::UInt16  = 3001
 
-function serverRun(f::Function, sock::TCPSocket, dir, args::Vector{String})
-    @debug :serverRun f sock dir args
+function serverRun(f::Function, sock::TCPSocket, args::Vector{String})
+    @debug :serverRun f sock args
 
     empty!(ARGS)
     push!(ARGS, args...)
 
     original_stdout = stdout
-    c = IOCapture.capture(; rethrow=Union{}, color = true) do
-        cd(f, dir)
-    end
+    c = IOCapture.capture(f; rethrow=Union{}, color = true)
     print(sock, c.output)
     if c.error
         write_error(sock, c.value, c.backtrace)
@@ -62,18 +60,17 @@ function async_process(sock::TCPSocket, into::Module)
             dir = readline(sock)
             expr_str::String = readuntil(sock, token_end)
             expr = Meta.parse(expr_str)
-            serverRun(sock, dir, String[]) do
-                Base.eval(into, expr)
-            end
+            @noinline do_eval_into_expr() = Base.eval(into, expr)
+            serverRun(do_eval_into_expr, sock, String[])
         elseif mode == token_runfile
             dir = readline(sock)
             filepath = readline(sock)
             args = Base.eval(Meta.parse(readline(sock)))
             rest::String = readuntil(sock, token_end)
             Base.PROGRAM_FILE = basename(filepath)
-            serverRun(sock, dir, args) do
-                Base.include(into, filepath)
-            end
+            @noinline do_include_into_filepath() = Base.include(into, filepath)
+            @noinline do_serverRun() = serverRun(do_include_into_filepath, sock, args)
+            cd(do_serverRun, dir)
         else
             ex = ArgumentError(mode)
             serverReplyError(sock, ex)
