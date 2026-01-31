@@ -14,11 +14,10 @@ JiveExt = "Jive"
 [compat]
 julia = "1.11"
 IOCapture = "0.2, 1"
-Jive = "0.3"
+Jive = "0.3" # 0.3.14 (WIP)
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-Jive = "ba5e3d4b-8524-549f-bc71-e76ad9e9deed"
 
 [targets]
 test = ["Test", "Jive"]
