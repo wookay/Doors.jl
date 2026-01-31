@@ -18,13 +18,13 @@ mutable struct App
     end
 end
 
-const token_runexpr = "Doors::token_runexpr"
-const token_runfile = "Doors::token_runfile"
-const token_end     = "Doors::token_end"
+const token_runexpr      = "<Doors::token_runexpr>"
+const token_runfile      = "<Doors::token_runfile>"
+const token_return_value = "<Doors::token_return_value>"
+const token_end          = "<Doors::token_end>"
 const PORT::UInt16  = 3001
 
 function serverRun(f::Function, sock::TCPSocket, args::Vector{String})
-    @debug :serverRun f sock args
 
     empty!(ARGS)
     push!(ARGS, args...)
@@ -34,6 +34,11 @@ function serverRun(f::Function, sock::TCPSocket, args::Vector{String})
     print(sock, c.output)
     if c.error
         write_error(sock, c.value, c.backtrace)
+        print(sock, token_return_value)
+        print(sock, repr(string(c.value)))
+    else
+        print(sock, token_return_value)
+        print(sock, c.value)
     end
     println(sock, token_end)
 end
@@ -57,7 +62,6 @@ function async_process(sock::TCPSocket, into::Module)
     try
         mode::String = readline(sock)
         if mode == token_runexpr
-            dir = readline(sock)
             expr_str::String = readuntil(sock, token_end)
             expr = Meta.parse(expr_str)
             @noinline do_eval_into_expr() = Base.eval(into, expr)
@@ -132,23 +136,14 @@ function shutdown(app::App)
 end
 
 ### client
-function conn_and_req(f::Function, port::Integer)
+function conn_and_req(f::Function, port::Integer)::Returns{String}
     sock = Sockets.connect(port)
     f(sock)
 
-    while true
-        line = readline(sock)
-        if endswith(line, token_end)
-            length_token_end = length(token_end)
-            if length(line) > length_token_end
-                crumb = line[1:end-length_token_end]
-                print(stdout, crumb)
-            end
-            break
-        else
-            println(stdout, line)
-        end
-    end
+    output_str::String = readuntil(sock, token_return_value)
+    print(stdout, output_str)
+    return_value_str::String = readuntil(sock, token_end)
+    Returns(return_value_str)
 end
 
 function request_runfile(sock::TCPSocket, dir, filepath, args::Vector{String})
@@ -162,13 +157,12 @@ end
 # using JuliaSyntaxHighlighting: highlight
 highlight(expr_str::String) = expr_str
 
-function request_runexpr(sock::TCPSocket, dir, expr_str::String)
+function request_runexpr(sock::TCPSocket, expr_str::String)
     printstyled(stdout, "julia> ", color = :light_green)
     println(stdout, highlight(expr_str))
 
     println(sock, token_runexpr)
-    println(sock, dir)
-    println(sock, expr_str)
+    print(sock, expr_str)
     println(sock, token_end)
 end
 

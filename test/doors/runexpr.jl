@@ -1,14 +1,37 @@
 using Test
-using Doors # runexpr
+using Doors
 
-app = Doors.create_app(; port = any, into = Module())
+Doors.runexpr
 
-yield()
-sleep(0.00000001)
+function test_runexpr()
+    app = Doors.create_app(; port = any, into = Module())
 
-expr_str = """println(3)"""
-runexpr(expr_str, app.server_port)
+    yield()
+    sleep(0.00000001)
 
-Doors.shutdown(app)
+    expr_str = """println(3)"""
+    value = runexpr(expr_str, app.server_port)
+    @test value === nothing
+    println(stdout)
 
-@test !app.is_running
+    expr_str = "1+2"
+    value = runexpr(expr_str, app.server_port)
+    @test value == 3
+    println(stdout, value)
+    println(stdout)
+
+    expr = quote
+    1+2
+    end
+    value = runexpr(expr, app.server_port)
+    @test value == 3
+    println(stdout, value)
+
+    Doors.shutdown(app)
+
+    @test !app.is_running
+end
+
+# using Base.CoreLogging: with_logger, ConsoleLogger, Debug
+# with_logger(test_runexpr, ConsoleLogger(Debug))
+test_runexpr()
