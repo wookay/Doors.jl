@@ -1,4 +1,5 @@
-# Doors.jl
+# Doors.jl 🚪
+https://github.com/wookay/Doors.jl/blob/main/LICENSE.md
 MIT License
 
 Copyright (c) 2026: WooKyoung Noh
@@ -23,8 +24,8 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-
 # DaemonMode.jl
+https://github.com/dmolina/DaemonMode.jl/blob/master/LICENSE
 Copyright (c) 2020 Daniel Molina
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -47,6 +48,7 @@ SOFTWARE.
 
 
 # IOCapture.jl
+https://github.com/JuliaDocs/IOCapture.jl/blob/master/LICENSE
 MIT License
 
 Copyright (c) 2016 Michael Hatherly
