@@ -146,8 +146,8 @@ function shutdown(app::App)
 end
 
 ### client
-function request_runfile(sock::TCPSocket, tup)
-    (dir, filepath, args::Vector{String}) = tup
+function request_runfile(sock::TCPSocket, tup::Tuple{String, String, Vector{String}})
+    (dir::String, filepath::String, args::Vector{String}) = tup
     println(sock, token_runfile)
     println(sock, dir)
     println(sock, filepath)
@@ -169,8 +169,8 @@ end
 
 function conn_and_req(
     f::Union{
-        Base.Fix{2, typeof(request_runfile), Tuple{String, String, Vector{String}}},
-        Base.Fix{2, typeof(request_runexpr), String}},
+        Base.Fix2{typeof(request_runfile), Tuple{String, String, Vector{String}}},
+        Base.Fix2{typeof(request_runexpr), String}},
     port::Integer)::Returns{String}
     sock = Sockets.connect(port)
     f(sock)
