@@ -1,20 +1,21 @@
 # module Doors
 
 using Sockets: Sockets, TCPSocket
-using IOCapture: IOCapture
 
 mutable struct App
     into::Module
     started_notify::Base.Event
+    closed_notify::Condition
     runloop_task::Union{Nothing,Task}
     is_running::Bool
     server_port::Union{Nothing,Integer}
     function App(; into::Module,
                    started_notify::Base.Event = Base.Event(),
+                   closed_notify::Condition = Condition(),
                    runloop_task::Union{Nothing,Task} = nothing,
                    is_running::Bool = false,
                    server_port::Union{Nothing,Integer} = nothing)
-        new(into, started_notify, runloop_task, is_running, server_port)
+        new(into, started_notify, closed_notify, runloop_task, is_running, server_port)
     end
 end
 
@@ -24,13 +25,23 @@ const token_return_value = "<Doors::token_return_value>"
 const token_end          = "<Doors::token_end>"
 const PORT::UInt16  = 3001
 
-function serverRun(f::Function, sock::TCPSocket, args::Vector{String})
+function serverRun(::typeof(Base.eval), into::Module, expr_str::String, sock::TCPSocket, args::Vector{String})
+    expr = Meta.parse(expr_str)
+    @noinline f() = Base.eval(into, expr)
+    serverRun(f, sock, args)
+end
 
+function serverRun(::typeof(Base.include), into::Module, filepath::String, sock::TCPSocket, args::Vector{String})
+    @noinline f() = Base.include(into, filepath)
+    serverRun(f, sock, args)
+end
+
+function serverRun(f::Function, sock::TCPSocket, args::Vector{String})
     empty!(ARGS)
     push!(ARGS, args...)
 
     original_stdout = stdout
-    c = IOCapture.capture(f; rethrow=Union{}, color = true)
+    c = iocapture(f; rethrow=Union{}, color = true)
     print(sock, c.output)
     if c.error
         write_error(sock, c.value, c.backtrace)
@@ -63,23 +74,21 @@ function async_process(sock::TCPSocket, into::Module)
         mode::String = readline(sock)
         if mode == token_runexpr
             expr_str::String = readuntil(sock, token_end)
-            expr = Meta.parse(expr_str)
-            @noinline do_eval_into_expr() = Base.eval(into, expr)
-            serverRun(do_eval_into_expr, sock, String[])
+            serverRun(Base.eval, into, expr_str, sock, String[])
         elseif mode == token_runfile
             dir = readline(sock)
             filepath = readline(sock)
             args = Base.eval(Meta.parse(readline(sock)))
             rest::String = readuntil(sock, token_end)
             Base.PROGRAM_FILE = basename(filepath)
-            @noinline do_include_into_filepath() = Base.include(into, filepath)
-            @noinline do_serverRun() = serverRun(do_include_into_filepath, sock, args)
+            @noinline do_serverRun() = serverRun(Base.include, into, filepath, sock, args)
             cd(do_serverRun, dir)
         else
             ex = ArgumentError(mode)
             serverReplyError(sock, ex)
         end
     catch ex
+        @info :ex ex
         serverReplyError(sock, ex)
     end
 end
@@ -94,9 +103,7 @@ end
 ### App
 function create_app(; port::Union{typeof(any), Integer} = PORT, into::Module)::App
     app = App(; into)
-    runloop_task = @async begin
-        runloop(app, port)
-    end
+    runloop_task = @async runloop(app, port)
     app.runloop_task = runloop_task
     app
 end
@@ -130,6 +137,7 @@ function runloop(app::App, port::Union{typeof(any), Integer})
         end
     end
     close(tcp_server)
+    notify(app.closed_notify)
 end
 
 function shutdown(app::App)
@@ -138,17 +146,8 @@ function shutdown(app::App)
 end
 
 ### client
-function conn_and_req(f::Function, port::Integer)::Returns{String}
-    sock = Sockets.connect(port)
-    f(sock)
-
-    output_str::String = readuntil(sock, token_return_value)
-    print(stdout, output_str)
-    return_value_str::String = readuntil(sock, token_end)
-    Returns(return_value_str)
-end
-
-function request_runfile(sock::TCPSocket, dir, filepath, args::Vector{String})
+function request_runfile(sock::TCPSocket, tup)
+    (dir, filepath, args::Vector{String}) = tup
     println(sock, token_runfile)
     println(sock, dir)
     println(sock, filepath)
@@ -166,6 +165,20 @@ function request_runexpr(sock::TCPSocket, expr_str::String)
     println(sock, token_runexpr)
     print(sock, expr_str)
     println(sock, token_end)
+end
+
+function conn_and_req(
+    f::Union{
+        Base.Fix{2, typeof(request_runfile), Tuple{String, String, Vector{String}}},
+        Base.Fix{2, typeof(request_runexpr), String}},
+    port::Integer)::Returns{String}
+    sock = Sockets.connect(port)
+    f(sock)
+
+    output_str::String = readuntil(sock, token_return_value)
+    print(stdout, output_str)
+    return_value_str::String = readuntil(sock, token_end)
+    Returns(return_value_str)
 end
 
 # module Doors

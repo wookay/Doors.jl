@@ -1,9 +1,8 @@
 # module Doors
 
 function runexpr(expr_str::String, port::Integer = PORT)
-    returns = conn_and_req(port) do sock
-        request_runexpr(sock, expr_str)
-    end
+    fix2 = Base.Fix2(request_runexpr, expr_str)
+    returns = conn_and_req(fix2, port)
     expr = Meta.parse(returns.value)
     Base.eval(expr)
 end

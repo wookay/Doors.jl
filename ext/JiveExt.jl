@@ -3,9 +3,8 @@ module JiveExt
 if VERSION >= v"1.11"
 using Jive
 using Doors
-using IOCapture
 
-HIDE_STACKFRAME_IN_MODULES = Set([Jive, Doors, IOCapture, Base.Filesystem, Base.CoreLogging])
+HIDE_STACKFRAME_IN_MODULES = Set([Jive, Doors, Base.Filesystem, Base.CoreLogging])
 
 # from Jive.jl/src/errorshow.jl
 import Jive: showable_stackframe
@@ -15,7 +14,7 @@ function showable_stackframe(frame::Base.StackTraces.StackFrame)::Bool
     elseif frame.func === Symbol("macro expansion")
         target_macro_expansions::Set{String} = Set([
             "Jive/src/runtests.jl",
-          # "Jive/src/compat.jl",
+            "Jive/src/compat.jl",
             "Test/src/Test.jl",
         ])
         frame_file = String(frame.file)

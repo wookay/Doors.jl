@@ -1,5 +1,6 @@
 module Doors
 
+include("iocapture.jl") # from IOCapture.jl
 include("crystal_ship.jl")
 
 export serve
