@@ -1,8 +1,10 @@
 module JiveExt
 
+using Jive: Jive
+using Sockets
+
 if VERSION >= v"1.11"
 using Doors
-using Jive
 using .Jive: Test
 
 # from Jive.jl/src/errorshow.jl
@@ -53,5 +55,10 @@ end
 =#
 
 end # if VERSION >= v"1.11"
+
+
+### precompile
+
+#=  575.8 ms =# precompile(Tuple{typeof(Base.print), Sockets.TCPSocket, Jive.Total})
 
 end # module JiveExt
