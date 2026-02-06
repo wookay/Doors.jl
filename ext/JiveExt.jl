@@ -1,11 +1,11 @@
 module JiveExt
 
 using Jive: Jive
+using .Jive: Test
 using Sockets
 
 if VERSION >= v"1.11"
 using Doors
-using .Jive: Test
 
 # from Jive.jl/src/errorshow.jl
 import Jive: showable_stackframe
@@ -59,6 +59,16 @@ end # if VERSION >= v"1.11"
 
 ### precompile
 
+# Jive
 #=  575.8 ms =# precompile(Tuple{typeof(Base.print), Sockets.TCPSocket, Jive.Total})
+
+# Test
+#=    9.5 ms =# precompile(Tuple{typeof(Base.print), Sockets.TCPSocket, Test.DefaultTestSet})
+#=    6.1 ms =# precompile(Tuple{typeof(Test.get_testset_depth)})
+if VERSION >= v"1.12.0-DEV.1812" # julia commit 6136893eee
+using .Test: Random
+#=    2.5 ms =# precompile(Tuple{typeof(Test.get_rng), Test.DefaultTestSet})
+#=    2.9 ms =# precompile(Tuple{typeof(Test.set_rng!), Test.DefaultTestSet, Random.Xoshiro})
+end
 
 end # module JiveExt
