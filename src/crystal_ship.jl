@@ -19,6 +19,10 @@ mutable struct App
     end
 end
 
+struct ShutdownException <: Exception
+    msg::AbstractString
+end
+
 const token_runexpr      = "<Doors::token_runexpr>"
 const token_runfile      = "<Doors::token_runfile>"
 const token_return_value = "<Doors::token_return_value>"
@@ -88,8 +92,11 @@ function async_process(sock::TCPSocket, into::Module)
             serverReplyError(sock, ex)
         end
     catch ex
-        @info :ex ex
-        serverReplyError(sock, ex)
+        if ex isa ShutdownException
+        else
+            @info :async_process ex
+            serverReplyError(sock, ex)
+        end
     end
 end
 
@@ -122,9 +129,10 @@ function runloop(app::App, port::Union{typeof(any), Integer})
     tasks = Task[]
     while isopen(tcp_server) && app.is_running
         sock::TCPSocket = Sockets.accept(tcp_server)
-        task = @async begin
-            async_process(sock, app.into)
-        end
+        f = Base.Fix2(async_process, app.into)
+        task = Task(f(sock))
+        schedule(task)
+        yield()
         push!(tasks, task)
     end
     if nicely
@@ -142,7 +150,7 @@ end
 
 function shutdown(app::App)
     app.is_running = false
-    @async Base.throwto(app.runloop_task, ErrorException("stop"))
+    @async Base.throwto(app.runloop_task, ShutdownException("shutdown"))
 end
 
 ### client
