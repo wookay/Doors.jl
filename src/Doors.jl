@@ -6,6 +6,7 @@ include("crystal_ship.jl")
 export serve
 include("serve.jl")
 include("back.jl")
+include("state.jl")
 
 ### client
 export runargs

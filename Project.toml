@@ -6,6 +6,7 @@ authors = ["WooKyoung Noh <wookay.noh@gmail.com>"]
 [deps]
 Sockets = "6462fe0b-24de-5631-8697-dd941f90decc"
 Jive = "ba5e3d4b-8524-549f-bc71-e76ad9e9deed"
+Preferences = "21216c6a-2e73-6563-6e65-726566657250"
 
 [extensions]
 JiveExt = "Jive"
@@ -13,10 +14,12 @@ JiveExt = "Jive"
 [compat]
 julia = "1.11"
 Jive = "0.3"
+Preferences = "1.5"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Jive = "ba5e3d4b-8524-549f-bc71-e76ad9e9deed"
+EmojiSymbols = "c599478c-de41-4aed-94ea-b47665d7a42a"
 
 [targets]
-test = ["Test", "Jive"]
+test = ["Test", "Jive", "EmojiSymbols"]
