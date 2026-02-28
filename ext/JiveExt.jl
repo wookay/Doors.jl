@@ -27,6 +27,10 @@ function showable_stackframe(frame::Base.StackTraces.StackFrame)::Bool
             end
         elseif frame.inlined && frame.func === :serverRun && endswith(frame_file, "Doors/src/crystal_ship.jl")
             return false
+        elseif frame.inlined && frame.func === :include_test_file && endswith(frame_file, "Jive/src/runtests.jl")
+            return false
+        elseif frame.inlined && frame.func === :Fix && endswith(frame_file, "./operators.jl")
+            return false
         elseif !frame.inlined && frame.file === Symbol("./boot.jl") && Base.parentmodule(frame) === Core
             return false
         elseif !frame.inlined && frame.file === Symbol("./loading.jl") && (frame.func === :_include || frame.func === :include_string)

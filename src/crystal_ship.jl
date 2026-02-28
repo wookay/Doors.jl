@@ -29,6 +29,22 @@ const token_return_value = "<Doors::token_return_value>"
 const token_end          = "<Doors::token_end>"
 const PORT::UInt16  = 3001
 
+if VERSION < v"1.12"
+const isdefinedglobal = isdefined
+end
+function check_revise(into::Module)
+    if Base.invokelatest(isdefinedglobal, into, :Revise)
+        Revise = Base.invokelatest(getglobal, into, :Revise)
+        if isa(Revise, Module) && isdefinedglobal(Revise, :revise)
+            revise = getglobal(Revise, :revise)
+            if revise isa Function
+                Base.invokelatest(revise)
+                # @info revise
+            end
+        end
+    end
+end
+
 function serverRun(::typeof(Base.eval), into::Module, expr_str::String, sock::TCPSocket, args::Vector{String})
     expr = Meta.parse(expr_str)
     @noinline f() = Base.eval(into, expr)
@@ -36,6 +52,8 @@ function serverRun(::typeof(Base.eval), into::Module, expr_str::String, sock::TC
 end
 
 function serverRun(::typeof(Base.include), into::Module, filepath::String, sock::TCPSocket, args::Vector{String})
+    check_revise(into)
+
     @noinline f() = Base.include(into, filepath)
     serverRun(f, sock, args)
 end
