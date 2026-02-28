@@ -33,12 +33,12 @@ if VERSION < v"1.12"
 const isdefinedglobal = isdefined
 end
 function check_revise(into::Module)
-    if Base.invokelatest(isdefinedglobal, into, :Revise)
-        Revise = Base.invokelatest(getglobal, into, :Revise)
+    if @invokelatest isdefinedglobal(into, :Revise)
+        Revise = @invokelatest getglobal(into, :Revise)
         if isa(Revise, Module) && isdefinedglobal(Revise, :revise)
             revise = getglobal(Revise, :revise)
             if revise isa Function
-                Base.invokelatest(revise)
+                @invokelatest revise()
                 # @info revise
             end
         end
