@@ -31,6 +31,8 @@ function showable_stackframe(frame::Base.StackTraces.StackFrame)::Bool
             return false
         elseif frame.inlined && frame.func === :Fix && endswith(frame_file, "./operators.jl")
             return false
+        elseif frame.inlined && frame.file === Symbol("./Base_compiler.jl")
+            return false
         elseif !frame.inlined && frame.file === Symbol("./boot.jl") && Base.parentmodule(frame) === Core
             return false
         elseif !frame.inlined && frame.file === Symbol("./loading.jl") && (frame.func === :_include || frame.func === :include_string)
