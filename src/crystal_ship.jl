@@ -63,7 +63,7 @@ function serverRun(f::Function, sock::TCPSocket, args::Vector{String})
     push!(ARGS, args...)
 
     original_stdout = stdout
-    c = iocapture(f; rethrow=Union{}, color = true)
+    c = iocapture(f, sock; color = true)
     print(sock, c.output)
     if c.error
         write_error(sock, c.value, c.backtrace)
@@ -148,7 +148,8 @@ function runloop(app::App, port::Union{typeof(any), Integer})
     while isopen(tcp_server) && app.is_running
         sock::TCPSocket = Sockets.accept(tcp_server)
         f = Base.Fix2(async_process, app.into)
-        task = Task(f(sock))
+        g() = f(sock)
+        task = Task(g)
         schedule(task)
         yield()
         push!(tasks, task)
@@ -201,10 +202,30 @@ function conn_and_req(
     sock = Sockets.connect(port)
     f(sock)
 
-    output_str::String = readuntil(sock, token_return_value)
-    print(stdout, output_str)
-    return_value_str::String = readuntil(sock, token_end)
-    Returns(return_value_str)
+    pre_buf = ""
+    while !eof(sock)
+        bytes = readavailable(sock)
+        str = String(bytes)
+        if occursin(token_return_value, str)
+            (out, rest) = split(str, token_return_value)
+            print(stdout, out)
+            pre_buf = rest
+            break
+        elseif occursin(token_end, str)
+            pre_buf = str
+            break
+        else
+            print(stdout, str)
+        end
+    end
+    if occursin(token_end, pre_buf)
+        (out, _) = split(pre_buf, token_end)
+        return_value_str = String(out)
+        Returns(return_value_str)
+    else
+        return_value_str = string(pre_buf, readuntil(sock, token_end))
+        Returns(return_value_str)
+    end
 end
 
 # module Doors
