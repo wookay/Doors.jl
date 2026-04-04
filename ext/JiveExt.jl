@@ -25,9 +25,9 @@ function showable_stackframe(frame::Base.StackTraces.StackFrame)::Bool
             for suffix in target_macro_expansions
                 endswith(frame_file, suffix) && return false
             end
-        elseif frame.inlined && frame.func === :serverRun && endswith(frame_file, "Doors/src/crystal_ship.jl")
+        elseif frame.inlined && frame.func === :serverRun && endswith(frame_file, "/src/crystal_ship.jl") # Doors
             return false
-        elseif frame.inlined && frame.func === :include_test_file && endswith(frame_file, "Jive/src/runtests.jl")
+        elseif frame.inlined && frame.func === :include_test_file && endswith(frame_file, "/src/runtests.jl") # Jive
             return false
         elseif frame.inlined && frame.func === :Fix && endswith(frame_file, "./operators.jl")
             return false
