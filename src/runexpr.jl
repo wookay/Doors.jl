@@ -1,10 +1,15 @@
 # module Doors
 
-function runexpr(expr_str::String, port::Integer = PORT)
-    fix2 = Base.Fix2(request_runexpr, expr_str)
-    returns = conn_and_req(fix2, port)
-    expr = Meta.parse(returns.value)
-    Base.eval(expr)
+function runexpr(expr::String, port::Integer = PORT)
+    resp = conn_and_req(request_runexpr, expr, port)
+    dict = JSON.parse(resp.body)
+    if haskey(dict, "error")
+        println(stdout, dict["error"])
+    end
+    if !isempty(dict["output"])
+        println(stdout, dict["output"])
+    end
+    dict["result"]
 end
 
 function runexpr(expr::Expr, port::Integer = PORT)

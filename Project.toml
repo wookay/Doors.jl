@@ -5,6 +5,8 @@ authors = ["WooKyoung Noh <wookay.noh@gmail.com>"]
 
 [deps]
 Sockets = "6462fe0b-24de-5631-8697-dd941f90decc"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 Jive = "ba5e3d4b-8524-549f-bc71-e76ad9e9deed"
 Preferences = "21216c6a-2e73-6563-6e65-726566657250"
 
@@ -13,6 +15,8 @@ JiveExt = "Jive"
 
 [compat]
 julia = "1.11"
+HTTP = "1.11"
+JSON = "1.5"
 Jive = "0.3"
 Preferences = "1.5"
 

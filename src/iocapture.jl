@@ -1,13 +1,11 @@
 # module Doors
 
-using Sockets: TCPSocket
-
 # original code from IOCapture.jl/src/IOCapture.jl
 # function capture
 
 function iocapture(
     f,
-    sock::TCPSocket ;
+    io::IO ;
     color::Bool = false
 )
     rethrow_type::Type = Union{}
@@ -20,7 +18,7 @@ function iocapture(
 
     # Redirect both the `stdout` and `stderr` streams to a single `Pipe` object.
     pipe = Pipe()
-    Base.link_pipe!(pipe; reader_supports_async = true, writer_supports_async = true)
+    Base.link_pipe!(pipe; reader_supports_async = false, writer_supports_async = false)
     @static if VERSION >= v"1.6.0-DEV.481" # https://github.com/JuliaLang/julia/pull/36688
         pe_stdout = IOContext(pipe.in, :color => get(stdout, :color, false) & color, io_context...)
         pe_stderr = IOContext(pipe.in, :color => get(stderr, :color, false) & color, io_context...)
@@ -31,14 +29,8 @@ function iocapture(
     redirect_stdout(pe_stdout)
     redirect_stderr(pe_stderr)
 
-    bufsize = 32
-    buffer = Vector{UInt8}(undef, bufsize)
     buffer_redirect_task = @async begin
-        while !eof(pipe)
-            nbytes = readbytes!(pipe, buffer, bufsize)
-            data = view(buffer, 1:nbytes)
-            write(sock, data)
-        end
+        write(io, pipe)
     end
 
     # Run the function `f`, capturing all output that it might have generated.
@@ -65,6 +57,6 @@ function iocapture(
         error = !success,
         backtrace = backtrace,
     )
-end
+end # function iocapture
 
 # module Doors

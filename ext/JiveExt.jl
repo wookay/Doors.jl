@@ -2,7 +2,8 @@ module JiveExt
 
 using Jive: Jive
 using .Jive: Test
-using Sockets
+using HTTP: HTTP
+using Sockets: Sockets
 
 if VERSION >= v"1.11"
 using Doors
@@ -11,7 +12,7 @@ using Doors
 import Jive: showable_stackframe
 function showable_stackframe(frame::Base.StackTraces.StackFrame)::Bool
     TestExt = Base.get_extension(Jive, :TestExt)
-    HIDE_STACKFRAME_IN_MODULES = Set([Doors, Jive, TestExt, Test, Base.Filesystem, Base.CoreLogging])
+    HIDE_STACKFRAME_IN_MODULES = Set([Doors, Jive, HTTP, TestExt, Test, Base.Filesystem, Base.CoreLogging])
     if Base.parentmodule(frame) in HIDE_STACKFRAME_IN_MODULES
         return false
     else

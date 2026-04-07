@@ -1,8 +1,8 @@
 # module Doors
 
 function runfile(dir::String, filepath::String, args::Vector{String}, port::Integer)
-    fix2 = Base.Fix2(request_runfile, (dir, filepath, args))
-    conn_and_req(fix2, port)
+    response_stream = stdout
+    conn_and_req(request_runfile, (dir, filepath, args), port, response_stream)
 end
 
 function runargs(port::Integer = PORT)

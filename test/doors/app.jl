@@ -20,7 +20,7 @@ app1 = Doors.create_app(; port = any, into = @__MODULE__)
 app2 = Doors.create_app(; port = any, into = Module())
 
 @test app1.into != app2.into
-@test app1.server_port === app2.server_port === nothing
+@test app1.server_port != app2.server_port
 
 wait(app1.started_notify)
 wait(app2.started_notify)
