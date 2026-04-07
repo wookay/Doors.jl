@@ -134,11 +134,12 @@ function create_app(; port::Union{typeof(any), Integer} = PORT, into::Module)::A
 end
 
 function runloop(app::App, port::Union{typeof(any), Integer})
+    host = Sockets.localhost
     if port === any
-        (server_port, tcp_server) = Sockets.listenany(Sockets.localhost, PORT)
+        (server_port, tcp_server) = Sockets.listenany(host, PORT)
     else
         server_port = port
-        tcp_server = Sockets.listen(Sockets.localhost, port)
+        tcp_server = Sockets.listen(host, port)
     end
     app.is_running = true
     app.server_port = server_port

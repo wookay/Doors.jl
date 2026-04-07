@@ -31,14 +31,8 @@ function iocapture(
     redirect_stdout(pe_stdout)
     redirect_stderr(pe_stderr)
 
-    bufsize = 32
-    buffer = Vector{UInt8}(undef, bufsize)
     buffer_redirect_task = @async begin
-        while !eof(pipe)
-            nbytes = readbytes!(pipe, buffer, bufsize)
-            data = view(buffer, 1:nbytes)
-            write(sock, data)
-        end
+        write(sock, pipe)
     end
 
     # Run the function `f`, capturing all output that it might have generated.
