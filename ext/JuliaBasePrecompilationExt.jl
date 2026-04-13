@@ -13,7 +13,6 @@ function monitor_background_precompile(io::Base.PipeEndpoint = stderr, detachabl
                                        # disable key controls when not on the main task to avoid
                                        # stealing stdin from the REPL
                                        key_controls::Bool = current_task() === Base.roottask)
-    @info :io typeof(io)
     local completed_at::Union{Nothing, Float64}
     local task
 
