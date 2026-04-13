@@ -9,6 +9,7 @@ using Base.Precompilation: PkgId, BG, ansi_enablecursor, printpkgstyle
 import Base.Precompilation: monitor_background_precompile
 
 # apply Ian Butterworth's patch
+Base.eval(@__MODULE__, quote
 function monitor_background_precompile(io::Base.PipeEndpoint = stderr, detachable::Bool = true, wait_for_pkg::Union{Nothing, PkgId} = nothing;
                                        # disable key controls when not on the main task to avoid
                                        # stealing stdin from the REPL
@@ -279,6 +280,7 @@ function monitor_background_precompile(io::Base.PipeEndpoint = stderr, detachabl
         rethrow()
     end
 end # function monitor_background_precompile
+end) # Base.eval
 
 end # if VERSION >= v"1.14.0-DEV.1963"
 
