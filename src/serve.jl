@@ -1,7 +1,6 @@
 # module Doors
 
 using Jive # trigger JiveExt
-using JuliaBase # trigger JuliaBasePrecompilationExt
 
 function serve(port::Union{typeof(any), Integer} = PORT; into::Module = Module())
     app = create_app(; into, port)

@@ -4,21 +4,15 @@ version = "0.1.0"
 authors = ["WooKyoung Noh <wookay.noh@gmail.com>"]
 
 [deps]
-JuliaBase = "a6cb74ac-0f84-4edb-8099-8f64a6486a97"
 Sockets = "6462fe0b-24de-5631-8697-dd941f90decc"
 Jive = "ba5e3d4b-8524-549f-bc71-e76ad9e9deed"
 Preferences = "21216c6a-2e73-6563-6e65-726566657250"
 
-[sources]
-JuliaBase = {path = "JuliaBase"}
-
 [extensions]
 JiveExt = "Jive"
-JuliaBasePrecompilationExt = "JuliaBase"
 
 [compat]
 julia = "1.11"
-JuliaBase = "0.1"
 Jive = "0.3"
 Preferences = "1.5"
 
