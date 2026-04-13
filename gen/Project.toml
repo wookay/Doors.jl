@@ -1,0 +1,14 @@
+name = "CheckForUpdatesUsingSugarCubes"
+uuid = "03a7547e-bb25-4fd5-a546-d98d3f76f7a2"
+version = "0.1.0"
+authors = ["WooKyoung Noh <wookay.noh@gmail.com>"]
+
+[deps]
+SugarCubes = "86f71aa2-667a-4c36-857d-1339355300f4"
+
+[sources]
+SugarCubes = {url = "https://github.com/wookay/SugarCubes.jl", rev = "main"}
+
+[compat]
+julia = "1.12"
+SugarCubes = "0.1"

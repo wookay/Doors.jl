@@ -24,6 +24,8 @@ jobs:
         include:
           - julia-version: nightly
             os: ubuntu-latest
+          - julia-version: 1.11.9       # 2026-02-06
+            os: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - uses: julia-actions/setup-julia@v1
@@ -32,6 +34,7 @@ jobs:
     - uses: julia-actions/cache@v1
     - uses: julia-actions/julia-buildpkg@v1
     - name: gen/check_for_updates_using_sugar_cubes.jl
+      if: ${{ matrix.julia-version == 'nightly' }}
       run: |
         git clone --depth=1 --filter=blob:none --sparse https://github.com/JuliaLang/julia sources
         cd sources/
