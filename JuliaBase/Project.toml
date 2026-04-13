@@ -1,0 +1,4 @@
+name = "JuliaBase"
+uuid = "a6cb74ac-0f84-4edb-8099-8f64a6486a97"
+version = "0.1.0"
+authors = ["WooKyoung Noh <wookay.noh@gmail.com>"]
