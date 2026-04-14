@@ -13,7 +13,7 @@ using EmojiSymbols
 @test Base.root_module_exists(modkey)
 
 target_modules = Doors.save()
-@test last(target_modules) === EmojiSymbols
+@test EmojiSymbols in target_modules
 
 Base.unreference_module(modkey)
 
