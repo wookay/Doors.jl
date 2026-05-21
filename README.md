@@ -12,6 +12,9 @@ alias jd="julia -i -e 'using Doors; serve()'  "
 alias jc="julia    -e 'using Doors; runargs()'  "
 ```
 
+### Tips
+ * `using Revise`
+
 ### Advanced usage
 ```
 alias jd="julia -i --trace-compile-timing --trace-compile=stderr --compiled-modules=yes -e 'using Doors; serve(; into=Main)'  "
