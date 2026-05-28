@@ -8,8 +8,8 @@ another implement of [DaemonMode.jl](https://github.com/dmolina/DaemonMode.jl).
 I used some code from DaemonMode.jl.
 
 ```
-alias jd="julia -i -e 'using Doors; serve()'  "
-alias jc="julia    -e 'using Doors; runargs()'  "
+alias jd="julia -i --startup-file=no -e 'using Doors; serve()'  "
+alias jc="julia                      -e 'using Doors; runargs()'  "
 ```
 
 ### Tips
@@ -17,8 +17,8 @@ alias jc="julia    -e 'using Doors; runargs()'  "
 
 ### Advanced usage
 ```
-alias jd="julia -i --trace-compile-timing --trace-compile=stderr --compiled-modules=yes -e 'using Doors; serve(; into=Main)'  "
-alias jc="julia    --trace-compile-timing --trace-compile=stderr --compiled-modules=yes -e 'using Doors; runargs()'  "
+alias jd="julia -i --startup-file=no --trace-compile-timing --trace-compile=stderr --compiled-modules=yes -e 'using Doors; serve(; into=Main)'  "
+alias jc="julia                      --trace-compile-timing --trace-compile=stderr --compiled-modules=yes -e 'using Doors; runargs()'  "
 ```
 
 ### Listen to music - The Doors  - The Crystal Ship (MIDI)
