@@ -1,5 +1,6 @@
 module Doors
 
+include("cancellation.jl")
 include("iocapture.jl") # from IOCapture.jl
 include("crystal_ship.jl")
 

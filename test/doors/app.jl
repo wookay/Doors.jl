@@ -11,7 +11,7 @@ app = App(; into = @__MODULE__)
 @test app.into isa Module
 @test app.started_notify isa Base.Event
 @test app.closed_notify isa Condition
-@test app.runloop_task === nothing
+@test app.runloop_cancellable === nothing
 @test !app.is_running
 @test app.server_port === nothing
 

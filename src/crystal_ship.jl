@@ -6,16 +6,16 @@ mutable struct App
     into::Module
     started_notify::Base.Event
     closed_notify::Condition
-    runloop_task::Union{Nothing,Task}
+    runloop_cancellable::Union{Nothing,Cancellable}
     is_running::Bool
     server_port::Union{Nothing,Integer}
     function App(; into::Module,
                    started_notify::Base.Event = Base.Event(),
                    closed_notify::Condition = Condition(),
-                   runloop_task::Union{Nothing,Task} = nothing,
+                   runloop_cancellable::Union{Nothing,Cancellable} = nothing,
                    is_running::Bool = false,
                    server_port::Union{Nothing,Integer} = nothing)
-        new(into, started_notify, closed_notify, runloop_task, is_running, server_port)
+        new(into, started_notify, closed_notify, runloop_cancellable, is_running, server_port)
     end
 end
 
@@ -128,8 +128,10 @@ end
 ### App
 function create_app(; port::Union{typeof(any), Integer} = PORT, into::Module)::App
     app = App(; into)
-    runloop_task = @async runloop(app, port)
-    app.runloop_task = runloop_task
+    cancel = cancellable_async() do
+        runloop(app, port)
+    end
+    app.runloop_cancellable = cancel
     app
 end
 
@@ -145,24 +147,14 @@ function runloop(app::App, port::Union{typeof(any), Integer})
     app.server_port = server_port
     notify(app.started_notify)
     @debug :runloop tcp_server Int(server_port)
-    tasks = Task[]
     while isopen(tcp_server) && app.is_running
-        sock::TCPSocket = Sockets.accept(tcp_server)
+        src = CancellationTokenSource()
+        sock::TCPSocket = accept(tcp_server; cancel=CancellationToken(src))
         f = Base.Fix2(async_process, app.into)
         g() = f(sock)
         task = Task(g)
         schedule(task)
         yield()
-        push!(tasks, task)
-    end
-    if nicely
-        for task in tasks
-            try
-                wait(task)
-            catch ex
-                showerror_with_backtrace(stderr, ex)
-            end
-        end
     end
     close(tcp_server)
     notify(app.closed_notify)
@@ -170,7 +162,12 @@ end
 
 function shutdown(app::App)
     app.is_running = false
-    @async Base.throwto(app.runloop_task, ShutdownException("shutdown"))
+    if support_cancellation
+        cancel!(app.runloop_cancellable.src)
+        spin()
+    else
+        @async Base.throwto(app.runloop_cancellable.task, ShutdownException("shutdown"))
+    end
 end
 
 ### client
